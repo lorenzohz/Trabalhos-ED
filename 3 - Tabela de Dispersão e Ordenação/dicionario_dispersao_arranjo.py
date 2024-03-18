@@ -67,6 +67,7 @@ class Dicionario:
         '''
         Devolve a quantidade de chaves no dicionário.
         '''
+        raise NotImplementedError
 
     def associa(self, chave: str, valor: int):
         '''

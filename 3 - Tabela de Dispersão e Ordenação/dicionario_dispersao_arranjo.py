@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Associacao:
-    "Associacao entre chave e valor. A"
+    "Associacao entre chave e valor."
     chave: str
     valor: int
 
@@ -95,9 +95,9 @@ class Dicionario:
         if self.tabela[i] is None: # Cria uma nova lista
             self.fator_carga += 1
             self.tabela[i] = [Associacao(chave, valor)]
-            if self.fator_carga >= (7 * len(self.tabela) // 10): # Redimensiona a tabela
+            if self.fator_carga > (7 * len(self.tabela) // 10): # Redimensiona a tabela
                 self._redimensiona()
-        else: 
+        else:
             for assoc in self.tabela[i]: #type:ignore  # Procura a chave na lista
                 if assoc.chave == chave: # Substitui o valor
                     assoc.valor = valor
@@ -131,7 +131,7 @@ class Dicionario:
             elif len(self.tabela[i]) > 1: #type:ignore
                 Removeu = False
                 j = 0
-                while j < len(self.tabela[i]) and not Removeu: #type:ignore
+                while not Removeu and j < len(self.tabela[i]): #type:ignore
                     if self.tabela[i][j].chave == chave: #type:ignore
                         self.tabela[i].pop(j) #type:ignore
                         Removeu = True
@@ -149,7 +149,7 @@ class Dicionario:
         Redimensiona a tabela de dispersão. Caso a tabela atual tenha um fator de carga > len(tabela) // 2, a tabela é redimensionada para o dobro do tamanho atual.
         Caso o fator de carga seja < len(tabela) // 8, a tabela é redimensionada para a metade do tamanho atual.
         '''
-        if self.fator_carga >= (7 * len(self.tabela) // 10):
+        if self.fator_carga > (7 * len(self.tabela) // 10):
             nova_tabela = [None] * (len(self.tabela) * 2)
         elif self.fator_carga < (len(self.tabela) // 8) and len(self.tabela) > 10: # Evita que a tabela seja redimensionada para um tamanho menor que 10
             nova_tabela = [None] * (len(self.tabela) // 2)

@@ -66,25 +66,21 @@ class Dicionario:
     ...     for j in range(i + 1, len(lst)):
     ...         assert d.get(str(j)) == j
     '''
-    tabela: list[list[Associacao] | None]
-    fator_carga: int
+    tabela: list[list[Associacao]]
+    numero_elem: int
 
     def __init__(self) -> None:
         '''
         Cria um novo dicionário vazio.
         '''
-        self.tabela = [None] * 10
-        self.fator_carga = 0
+        self.tabela = [[] for _ in range(10)]
+        self.numero_elem = 0
 
     def num_itens(self) -> int:
         '''
         Devolve a quantidade de chaves no dicionário.
         '''
-        total = 0
-        for i in range(len(self.tabela)):
-            if self.tabela[i] is not None:
-                total += len(self.tabela[i]) #type:ignore
-        return total
+        return self.numero_elem
 
     def associa(self, chave: str, valor: int):
         '''
@@ -92,17 +88,13 @@ class Dicionario:
         associada com um valor, ele é sustituído por *valor*.
         '''
         i = self._mapeia(chave)
-        if self.tabela[i] is None: # Cria uma nova lista
-            self.fator_carga += 1
-            self.tabela[i] = [Associacao(chave, valor)]
-            if self.fator_carga > (7 * len(self.tabela) // 10): # Redimensiona a tabela
-                self._redimensiona()
-        else:
-            for assoc in self.tabela[i]: #type:ignore  # Procura a chave na lista
-                if assoc.chave == chave: # Substitui o valor
-                    assoc.valor = valor
-                    return
-            self.tabela[i].append(Associacao(chave, valor)) #type:ignore  # Adiciona a associação na lista
+        for j in self.tabela[i]:
+            if j.chave == chave:
+                j.valor = valor
+                return
+        self.numero_elem += 1
+        self.tabela[i].append(Associacao(chave, valor))
+        self._redimensiona()
 
     def get(self, chave: str) -> int | None:
         '''
@@ -110,8 +102,8 @@ class Dicionario:
         não está no dicionário.
         '''
         i = self._mapeia(chave)
-        if self.tabela[i] is not None:
-            for assoc in self.tabela[i]: #type:ignore
+        if self.tabela[i] != []:
+            for assoc in self.tabela[i]:
                 if assoc.chave == chave:
                     return assoc.valor
         return None
@@ -122,20 +114,13 @@ class Dicionario:
         nada se a *chave* não está no dicionário.
         '''
         i = self._mapeia(chave)
-        if self.tabela[i] is not None:
-            if len(self.tabela[i]) == 1 and self.tabela[i][0].chave == chave: #type:ignore
-                self.tabela[i] = None
-                self.fator_carga -= 1
-                if self.fator_carga < (len(self.tabela) // 8):
+        if self.tabela[i] != []:
+            for assoc in self.tabela[i]:
+                if assoc.chave == chave:
+                    self.tabela[i] = [assoc for assoc in self.tabela[i] if assoc.chave != chave]
+                    self.numero_elem -= 1
                     self._redimensiona()
-            elif len(self.tabela[i]) > 1: #type:ignore
-                Removeu = False
-                j = 0
-                while not Removeu and j < len(self.tabela[i]): #type:ignore
-                    if self.tabela[i][j].chave == chave: #type:ignore
-                        self.tabela[i].pop(j) #type:ignore
-                        Removeu = True
-                    j += 1
+                    return
 
     def _mapeia(self, chave: str) -> int:
         '''
@@ -146,24 +131,29 @@ class Dicionario:
 
     def _redimensiona(self):
         '''
-        Redimensiona a tabela de dispersão. Caso a tabela atual tenha um fator de carga > len(tabela) // 2, a tabela é redimensionada para o dobro do tamanho atual.
-        Caso o fator de carga seja < len(tabela) // 8, a tabela é redimensionada para a metade do tamanho atual.
+        Redimensiona a tabela de dispersão. Caso a tabela atual tenha um fator de carga > 0.7, a tabela é redimensionada para o dobro do tamanho atual.
+        Caso o fator de carga seja < 0.125 e o len(self.tabela > 10), a tabela é redimensionada para a metade do tamanho atual.
         '''
-        if self.fator_carga > (7 * len(self.tabela) // 10):
-            nova_tabela = [None] * (len(self.tabela) * 2)
-        elif self.fator_carga < (len(self.tabela) // 8) and len(self.tabela) > 10: # Evita que a tabela seja redimensionada para um tamanho menor que 10
-            nova_tabela = [None] * (len(self.tabela) // 2)
+        if self._fator_carga() > 0.7:
+            nova_tabela = [[] for _ in range(len(self.tabela) * 2)]
+        elif self._fator_carga() < 0.125 and len(self.tabela) > 10:
+            nova_tabela = [[] for _ in range(len(self.tabela) // 2)]
         else:
             return
-
-        for i in range(len(self.tabela)):
-            if self.tabela[i] is not None:
-                for assoc in self.tabela[i]:
-                    j = hash(assoc.chave) % len(nova_tabela) # Mapeia a chave na nova tabela
-                    if nova_tabela[j] is None:
-                        nova_tabela[j] = [assoc]
-                    else:
-                        nova_tabela[j].append(assoc)
-        
+        for lista in self.tabela:
+            for assoc in lista:
+                i = hash(assoc.chave) % len(nova_tabela)
+                nova_tabela[i].append(assoc)
         self.tabela = nova_tabela
-    
+
+    def _fator_carga(self) -> float:
+        '''
+        Devolve o fator de carga da tabela de dispersão.
+        '''
+        return self.numero_elem / len(self.tabela)
+        
+    def __repr__(self) -> str:
+        '''
+        Devolve uma representação da tabela de dispersão.
+        '''
+        return self.tabela.__repr__()

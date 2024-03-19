@@ -11,7 +11,7 @@ class Dicionario:
     '''
     Uma coleção de chaves únicas associadas com valores.
 
-    Exemplos
+    Exemplos:
 
     >>> d = Dicionario()
     >>> d.num_itens()

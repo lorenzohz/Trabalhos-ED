@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Associacao:
-    "Associacao entre chave e valor."
+    " Associacao entre chave e valor."
     chave: str
     valor: int
 

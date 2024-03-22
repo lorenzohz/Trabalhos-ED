@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 @dataclass
-class Associacao:
+class Item:
     " Associacao entre chave e valor."
     chave: str
     valor: int
@@ -66,7 +66,7 @@ class Dicionario:
     ...     for j in range(i + 1, len(lst)):
     ...         assert d.get(str(j)) == j
     '''
-    tabela: list[list[Associacao]]
+    tabela: list[list[Item]]
     numero_elem: int
 
     def __init__(self) -> None:
@@ -91,9 +91,9 @@ class Dicionario:
         for j in self.tabela[i]:
             if j.chave == chave:
                 j.valor = valor
-                return
+                return # Garante que a chave não será adicionada novamente
         self.numero_elem += 1
-        self.tabela[i].append(Associacao(chave, valor))
+        self.tabela[i].append(Item(chave, valor))
         self._redimensiona()
 
     def get(self, chave: str) -> int | None:
@@ -114,32 +114,54 @@ class Dicionario:
         nada se a *chave* não está no dicionário.
         '''
         i = self._mapeia(chave)
-        if self.tabela[i] != []:
-            for assoc in self.tabela[i]:
-                if assoc.chave == chave:
-                    self.tabela[i] = [assoc for assoc in self.tabela[i] if assoc.chave != chave]
-                    self.numero_elem -= 1
-                    self._redimensiona()
-                    return
+        j = 0
+        while j < len(self.tabela[i]):
+            if self.tabela[i][j].chave == chave:
+                self.tabela[i].pop(j)
+                self.numero_elem -= 1
+                self._redimensiona()
+                return
+            j += 1
 
     def _mapeia(self, chave: str) -> int:
         '''
         Devolve o índice da *chave* na tabela de dispersão.
-        O mapeamento é feito com a função hash da chave e o tamanho da tabela, onde usamos o resto da divisão.
+        O mapeamento é feito usando o resto da função hash da chave dividida pelo tamanho da tabela.
         '''
         return hash(chave) % len(self.tabela)
 
     def _redimensiona(self):
         '''
-        Redimensiona a tabela de dispersão. Caso a tabela atual tenha um fator de carga > 0.7, a tabela é redimensionada para o dobro do tamanho atual.
-        Caso o fator de carga seja < 0.125 e o len(self.tabela > 10), a tabela é redimensionada para a metade do tamanho atual.
+        Redimensiona a tabela de dispersão. Caso a tabela atual tenha um fator de carga > 10, a tabela é redimensionada para o dobro do tamanho atual.
+        Caso o fator de carga seja < 5 e o len(self.tabela > 10), a tabela é redimensionada para a metade do tamanho atual.
+
+        Exemplos:
+        >>> d = Dicionario()
+        >>> len(d.tabela)
+        10
+        >>> for i in range(150):
+        ...     d.associa(str(i), i)
+        >>> len(d.tabela)
+        20
+        >>> for i in range(150, 201):
+        ...     d.associa(str(i), i)
+        >>> len(d.tabela)
+        40
+        >>> for i in range(150, 201):
+        ...     d.remove(str(i))
+        >>> len(d.tabela)
+        20
+        >>> for i in range(50, 150):
+        ...     d.remove(str(i))
+        >>> len(d.tabela)
+        10
         '''
-        if self._fator_carga() > 0.7:
+        if self._fator_carga() > 10:
             nova_tabela = [[] for _ in range(len(self.tabela) * 2)]
-        elif self._fator_carga() < 0.125 and len(self.tabela) > 10:
+        elif self._fator_carga() < 5 and len(self.tabela) > 10:
             nova_tabela = [[] for _ in range(len(self.tabela) // 2)]
         else:
-            return
+            return # caso o fator de carga não atenda as condições, não redimensiona a tabela
         for lista in self.tabela:
             for assoc in lista:
                 i = hash(assoc.chave) % len(nova_tabela)
@@ -151,9 +173,4 @@ class Dicionario:
         Devolve o fator de carga da tabela de dispersão.
         '''
         return self.numero_elem / len(self.tabela)
-        
-    def __repr__(self) -> str:
-        '''
-        Devolve uma representação da tabela de dispersão.
-        '''
-        return self.tabela.__repr__()
+

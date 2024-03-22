@@ -54,6 +54,8 @@ def num_itens(lst: Lista) -> int:
     
     >>> num_itens(lista([5, 2, 4, 6, 1, 3]))
     6
+    >>> num_itens(lista([]))
+    0
     '''
     if lst is None:
         return 0
@@ -102,10 +104,16 @@ def merge(esquerda: Lista, direita: Lista) -> Lista:
 
     >>> arranjo(merge(lista([2, 5, 8]), lista([3, 6, 7])))
     [2, 3, 5, 6, 7, 8]
+    >>> arranjo(merge(lista([2, 5, 8]), lista([3, 6])))
+    [2, 3, 5, 6, 8]
+    >>> arranjo(merge(lista([]), lista([3, 6])))
+    [3, 6]
+    >>> arranjo(merge(lista([2, 5, 8]), lista([])))
+    [2, 5, 8]
+    >>> arranjo(merge(lista([]), lista([])))
+    []
     '''
     # Caso base: Se uma das listas é vazia, retorna a outra lista
-    if esquerda is None and direita is None:
-        return None
     if esquerda is None:
         return direita
     elif direita is None:

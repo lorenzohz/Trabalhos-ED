@@ -92,22 +92,32 @@ class Dicionario:
 
         >>> d = Dicionario()
         >>> assert len(d.tabela) == 10
+        >>> d.numero_elem
+        0
 
         >>> for i in range(150):
         ...     d.associa(str(i), i)
         >>> assert len(d.tabela) == 20
+        >>> d.numero_elem
+        150
 
         >>> for i in range(150, 201):
         ...     d.associa(str(i), i)
         >>> assert len(d.tabela) == 40
+        >>> d.numero_elem
+        201
 
         >>> for i in range(150, 201):
         ...     d.remove(str(i))
         >>> assert len(d.tabela) == 20
+        >>> d.numero_elem
+        150
 
         >>> for i in range(50, 150):
         ...     d.remove(str(i))
         >>> assert len(d.tabela) == 10
+        >>> d.numero_elem
+        50
         '''
         if self._fator_carga() <= 10 and self._fator_carga() >= 5:
             return # Não precisa redimensionar

@@ -85,29 +85,29 @@ class Dicionario:
 
     def _redispersao(self):
         '''
-        Redimensiona a tabela de dispersão. Caso a tabela atual tenha um fator de carga > 10, a tabela é redimensionada para o dobro do tamanho atual.
-        Caso o fator de carga seja < 5 e o len(self.tabela > 10), a tabela é redimensionada para a metade do tamanho atual.
+        Teste de Propriedade:
 
-        Exemplos:
+        O teste a seguir cria um dicionário e assim, associa e remove chaves
+        para verificar se a redispersão está funcionando corretamente.
+
         >>> d = Dicionario()
-        >>> len(d.tabela)
-        10
+        >>> assert len(d.tabela) == 10
+
         >>> for i in range(150):
         ...     d.associa(str(i), i)
-        >>> len(d.tabela)
-        20
+        >>> assert len(d.tabela) == 20
+
         >>> for i in range(150, 201):
         ...     d.associa(str(i), i)
-        >>> len(d.tabela)
-        40
+        >>> assert len(d.tabela) == 40
+
         >>> for i in range(150, 201):
         ...     d.remove(str(i))
-        >>> len(d.tabela)
-        20
+        >>> assert len(d.tabela) == 20
+
         >>> for i in range(50, 150):
         ...     d.remove(str(i))
-        >>> len(d.tabela)
-        10
+        >>> assert len(d.tabela) == 10
         '''
         if self._fator_carga() <= 10 and self._fator_carga() >= 5:
             return # Não precisa redimensionar

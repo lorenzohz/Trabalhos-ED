@@ -177,10 +177,11 @@ class Dicionario:
         '''
         i = self._mapeia(chave)
         j = 0
-        while j < len(self.tabela[i]):
+        removeu = False
+        while not removeu and j < len(self.tabela[i]) :
             if self.tabela[i][j].chave == chave:
                 self.tabela[i].pop(j)
                 self.numero_elem -= 1
                 self._redispersao()
-                return
+                removeu = True
             j += 1

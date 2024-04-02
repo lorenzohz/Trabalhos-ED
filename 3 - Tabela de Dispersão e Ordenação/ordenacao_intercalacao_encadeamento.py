@@ -158,3 +158,5 @@ def arranjo(lst: Lista) -> list[int]:
         a.append(lst.valor)
         lst = lst.prox
     return a
+
+
